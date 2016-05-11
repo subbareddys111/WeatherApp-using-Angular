@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="ISO-8859-1">
+    <title>Weather App Angular</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+              .myBtn{
+                   background: #9999ff;
+                   border: 1px solid silver;
+   				   padding:1px;
+				   width:27%;
+				   font-size:1.5em;
+				   text-align:center;                   
+               }
+               #whtrContent{
+                   border: 1px solid silver;
+                   background-color: #FCCA55;
+               }
+               #whtrImg{
+                   width: 150px;height: 150px;
+                   border: 1px solid burlywood
+               }
+               .cityName{
+                   font-size: 100px;
+               }
+               .temp{
+                   padding: 15px;
+                   background: #FF3D5A;
+                   color: white;
+               }
+               #textData {
+				  padding:1px;
+				  margin:0px;
+				  width:70%;
+				  font-size:1.5em;
+				  text-align:center;
+				}
+     </style>  
+   </head>
+ <body>
+         <div ng-app = "MyApp" ng-controller = "MyCont">
+             <div class="row">
+                 <div class="col-md-1"></div>
+                 <div class="col-md-6">
+                     <h1 align = "center">Weather App using Angular JS</h1>
+                 </div>
+                 <div class="col-md-1"></div>
+             </div>                
+             <div class="row">
+                 <div class="col-md-2"></div>
+                 <div class="col-md-4">
+                     <p >
+                         <input type = "text" ng-model = "cityName" id = "textData" placeholder = "Enter Your City Name">
+                         <input class = "myBtn" type = "button" value = "GetDetails" ng-click = "funGet()">
+                      </p>
+                 </div>
+                 <div class="col-md-2"></div>
+             </div>
+             <div class="row">
+                 <div class="col-md-2"></div>
+                 <div class="col-md-4" id = "whtrContent">
+                    <h1 align="center">{{ city }},{{country}}</h1>
+                    <hr />
+                    <p align = "center"> <img src="http://openweathermap.org/img/w/{{ imgCode }}.png" style="width:100px; height:100px; "> </p>
+                    <h2 align = "center" class = "cityName"> {{ tmp | number : 1 }}°C </h2>
+                    <h3 align = "center"> <span class = "temp"> {{des }}: {{desc}}</span> </h3>
+                    <br>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+        </div>
+  <script>
+  var app = angular.module('MyApp', []);
+  app.controller('MyCont', function($scope, $http){
+    
+      // Initialization of the scope variables. 
+   
+      $scope.cityName = " ";
+      $scope.tmp = 0;
+      $scope.minTemp = 0;
+      $scope.maxTemp = 0;
+   
+	     $scope.initial = function(){
+		       navigator.geolocation.getCurrentPosition(function(position){
+		         var lat = position.coords.latitude;
+		         var lon = position.coords.longitude;
+
+		         $http.jsonp("http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+lon+"&APPID=a8f5261ee6863849df5a45497bb27163&callback=JSON_CALLBACK").
+		         success(function(data){
+		              $scope.imgWidth = 150;
+		              $scope.imgHeight = 150;
+		              $scope.wtData = data.coord;
+		              $scope.city = data.name;
+		              $scope.country = data.sys.country;
+		              $scope.tmp = data.main.temp - 272.15;
+		              $scope.des = data.weather[0].main;
+		              $scope.desc = data.weather[0].description;
+		              $scope.minTemp = data.main.temp_min - 272.15;
+		              $scope.maxTemp = data.main.temp_max - 272.15;
+		              $scope.hmdy = data.main.humidity;
+		              $scope.imgCode = data.weather[0].icon;
+		              
+		           console.log(data);
+		           $('.loading').hide();
+		         }).
+		         error(function(){
+		           $('.loading').hide();
+		           $('.error').show().html("Sorry there has been an error connecting to the API");
+		         });
+
+		       }); 
+		     };
+
+		     $scope.initial();  
+
+      // Logic for the On-Click event.
+   
+      $scope.funGet = function(){
+          var url = "http://api.openweathermap.org/data/2.5/weather?zip="+$scope.cityName+"&appid=5c986fcf00d42f43e82af9b11e0dd251"
+          $http.get(url)
+          .success(function(response) {
+              $scope.imgWidth = 150;
+              $scope.imgHeight = 150;
+              $scope.wtData = response.coord;
+              $scope.city = response.name;
+              $scope.country = response.sys.country;
+              $scope.tmp = response.main.temp - 272.15;
+              $scope.des = response.weather[0].main;
+              $scope.desc = response.weather[0].description;
+              $scope.minTemp = response.main.temp_min - 272.15;
+              $scope.maxTemp = response.main.temp_max - 272.15;
+              $scope.hmdy = response.main.humidity;
+              $scope.imgCode = response.weather[0].icon;
+          });
+       }
+  });
+  </script>
+</body>
+</html>
